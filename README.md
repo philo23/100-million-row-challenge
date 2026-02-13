@@ -4,7 +4,7 @@ Welcome to the 100-million-row challenge in PHP! Your goal is to parse a data se
 
 ## Getting started
 
-To submit a solution, you'll have to [fork this repository](https://github.com/brendt/php-one-billion-row-challenge/fork), and clone it locally. Once done, install the project dependencies and generate a dataset for local development:
+To submit a solution, you'll have to [fork this repository](https://github.com/tempestphp/100-million-row-challenge/fork), and clone it locally. Once done, install the project dependencies and generate a dataset for local development:
 
 ```sh
 composer install
