@@ -36,7 +36,11 @@ final class Parser
                 $commaPos = $newlinePos - $commaOffsetFromNewline;
                 $pathStart = $offset + $prefixLength;
                 $path = \substr($buffer, $pathStart, $commaPos - $pathStart);
-                $date = \substr($buffer, $commaPos + 1, 10);
+                $date = (int) (
+                    \substr($buffer, $commaPos + 1, 4)
+                    . \substr($buffer, $commaPos + 6, 2)
+                    . \substr($buffer, $commaPos + 9, 2)
+                );
 
                 if (isset($result[$path][$date])) {
                     $result[$path][$date]++;
@@ -55,7 +59,11 @@ final class Parser
         if ($buffer !== '') {
             $commaPos = \strlen($buffer) - $timestampLength - 1;
             $path = \substr($buffer, $prefixLength, $commaPos - $prefixLength);
-            $date = \substr($buffer, $commaPos + 1, 10);
+            $date = (int) (
+                \substr($buffer, $commaPos + 1, 4)
+                . \substr($buffer, $commaPos + 6, 2)
+                . \substr($buffer, $commaPos + 9, 2)
+            );
 
             if (isset($result[$path][$date])) {
                 $result[$path][$date]++;
@@ -65,7 +73,22 @@ final class Parser
         }
 
         foreach ($result as &$dates) {
-            \ksort($dates, \SORT_STRING);
+            \ksort($dates, \SORT_NUMERIC);
+
+            $formattedDates = [];
+
+            foreach ($dates as $date => $count) {
+                $dateString = (string) $date;
+                $formattedDates[
+                    \substr($dateString, 0, 4)
+                    . '-'
+                    . \substr($dateString, 4, 2)
+                    . '-'
+                    . \substr($dateString, 6, 2)
+                ] = $count;
+            }
+
+            $dates = $formattedDates;
         }
         unset($dates);
 
