@@ -72,20 +72,26 @@ final class Parser
             }
         }
 
+        $dateCache = [];
+
         foreach ($result as &$dates) {
             \ksort($dates, \SORT_NUMERIC);
 
             $formattedDates = [];
 
             foreach ($dates as $date => $count) {
-                $dateString = (string) $date;
-                $formattedDates[
-                    \substr($dateString, 0, 4)
-                    . '-'
-                    . \substr($dateString, 4, 2)
-                    . '-'
-                    . \substr($dateString, 6, 2)
-                ] = $count;
+                if (isset($dateCache[$date])) {
+                    $formattedDate = $dateCache[$date];
+                } else {
+                    $dateString = (string) $date;
+                    $dateCache[$date] = $formattedDate = \substr($dateString, 0, 4)
+                        . '-'
+                        . \substr($dateString, 4, 2)
+                        . '-'
+                        . \substr($dateString, 6, 2);
+                }
+
+                $formattedDates[$formattedDate] = $count;
             }
 
             $dates = $formattedDates;
