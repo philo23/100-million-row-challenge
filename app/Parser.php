@@ -49,10 +49,12 @@ final class Parser
                     );
                 }
 
-                if (isset($result[$path][$date])) {
-                    $result[$path][$date]++;
+                $pathDates = &$result[$path];
+
+                if (isset($pathDates[$date])) {
+                    $pathDates[$date]++;
                 } else {
-                    $result[$path][$date] = 1;
+                    $pathDates[$date] = 1;
                 }
 
                 $offset = $newlinePos + 1;
@@ -78,10 +80,12 @@ final class Parser
                 );
             }
 
-            if (isset($result[$path][$date])) {
-                $result[$path][$date]++;
+            $pathDates = &$result[$path];
+
+            if (isset($pathDates[$date])) {
+                $pathDates[$date]++;
             } else {
-                $result[$path][$date] = 1;
+                $pathDates[$date] = 1;
             }
         }
 
