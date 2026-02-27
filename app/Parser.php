@@ -103,7 +103,6 @@ final class Parser
 
             $dates = $formattedDates;
         }
-        unset($dates);
 
         \file_put_contents($outputPath, \json_encode($result, \JSON_PRETTY_PRINT));
     }
