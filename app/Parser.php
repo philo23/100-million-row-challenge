@@ -6,8 +6,6 @@ final class Parser
 {
     public function parse(string $inputPath, string $outputPath): void
     {
-        \ini_set('memory_limit', '1536M');
-
         $fh = \fopen($inputPath, 'rb');
         \stream_set_read_buffer($fh, 0);
 
