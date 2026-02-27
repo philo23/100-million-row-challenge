@@ -15,6 +15,7 @@ final class Parser
         $commaOffsetFromNewline = $timestampLength + 1;
         $chunkSize = 1024 * 1024;
         $buffer = '';
+        $parsedDateCache = [];
 
         while (! \feof($fh)) {
             $chunk = \fread($fh, $chunkSize);
@@ -36,11 +37,17 @@ final class Parser
                 $commaPos = $newlinePos - $commaOffsetFromNewline;
                 $pathStart = $offset + $prefixLength;
                 $path = \substr($buffer, $pathStart, $commaPos - $pathStart);
-                $date = (int) (
-                    \substr($buffer, $commaPos + 1, 4)
-                    . \substr($buffer, $commaPos + 6, 2)
-                    . \substr($buffer, $commaPos + 9, 2)
-                );
+                $rawDate = \substr($buffer, $commaPos + 1, 10);
+
+                if (isset($parsedDateCache[$rawDate])) {
+                    $date = $parsedDateCache[$rawDate];
+                } else {
+                    $parsedDateCache[$rawDate] = $date = (int) (
+                        \substr($buffer, $commaPos + 1, 4)
+                        . \substr($buffer, $commaPos + 6, 2)
+                        . \substr($buffer, $commaPos + 9, 2)
+                    );
+                }
 
                 if (isset($result[$path][$date])) {
                     $result[$path][$date]++;
@@ -59,11 +66,17 @@ final class Parser
         if ($buffer !== '') {
             $commaPos = \strlen($buffer) - $timestampLength - 1;
             $path = \substr($buffer, $prefixLength, $commaPos - $prefixLength);
-            $date = (int) (
-                \substr($buffer, $commaPos + 1, 4)
-                . \substr($buffer, $commaPos + 6, 2)
-                . \substr($buffer, $commaPos + 9, 2)
-            );
+            $rawDate = \substr($buffer, $commaPos + 1, 10);
+
+            if (isset($parsedDateCache[$rawDate])) {
+                $date = $parsedDateCache[$rawDate];
+            } else {
+                $parsedDateCache[$rawDate] = $date = (int) (
+                    \substr($buffer, $commaPos + 1, 4)
+                    . \substr($buffer, $commaPos + 6, 2)
+                    . \substr($buffer, $commaPos + 9, 2)
+                );
+            }
 
             if (isset($result[$path][$date])) {
                 $result[$path][$date]++;
@@ -72,7 +85,7 @@ final class Parser
             }
         }
 
-        $dateCache = [];
+        $formattedDatesByInt = \array_flip($parsedDateCache);
 
         foreach ($result as &$dates) {
             \ksort($dates, \SORT_NUMERIC);
@@ -80,18 +93,7 @@ final class Parser
             $formattedDates = [];
 
             foreach ($dates as $date => $count) {
-                if (isset($dateCache[$date])) {
-                    $formattedDate = $dateCache[$date];
-                } else {
-                    $dateString = (string) $date;
-                    $dateCache[$date] = $formattedDate = \substr($dateString, 0, 4)
-                        . '-'
-                        . \substr($dateString, 4, 2)
-                        . '-'
-                        . \substr($dateString, 6, 2);
-                }
-
-                $formattedDates[$formattedDate] = $count;
+                $formattedDates[$formattedDatesByInt[$date]] = $count;
             }
 
             $dates = $formattedDates;
