@@ -16,6 +16,7 @@ final class Parser
         $chunkSize = 1024 * 1024;
         $buffer = '';
         $parsedDateCache = [];
+        $formattedDatesByInt = [];
 
         while (! \feof($fh)) {
             $chunk = \fread($fh, $chunkSize);
@@ -47,6 +48,7 @@ final class Parser
                         . \substr($buffer, $commaPos + 6, 2)
                         . \substr($buffer, $commaPos + 9, 2)
                     );
+                    $formattedDatesByInt[$date] = $rawDate;
                 }
 
                 $pathDates = &$result[$path];
@@ -78,6 +80,7 @@ final class Parser
                     . \substr($buffer, $commaPos + 6, 2)
                     . \substr($buffer, $commaPos + 9, 2)
                 );
+                $formattedDatesByInt[$date] = $rawDate;
             }
 
             $pathDates = &$result[$path];
@@ -88,8 +91,6 @@ final class Parser
                 $pathDates[$date] = 1;
             }
         }
-
-        $formattedDatesByInt = \array_flip($parsedDateCache);
 
         foreach ($result as &$dates) {
             \ksort($dates, \SORT_NUMERIC);
