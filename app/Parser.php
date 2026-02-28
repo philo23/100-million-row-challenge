@@ -44,9 +44,9 @@ final class Parser
                     $date = $parsedDateCache[$rawDate];
                 } else {
                     $parsedDateCache[$rawDate] = $date = (int) (
-                        \substr($buffer, $commaPos + 1, 4)
-                        . \substr($buffer, $commaPos + 6, 2)
-                        . \substr($buffer, $commaPos + 9, 2)
+                        \substr($rawDate, 0, 4)
+                        . \substr($rawDate, 5, 2)
+                        . \substr($rawDate, 8, 2)
                     );
                     $formattedDatesByInt[$date] = $rawDate;
                 }
@@ -76,9 +76,9 @@ final class Parser
                 $date = $parsedDateCache[$rawDate];
             } else {
                 $parsedDateCache[$rawDate] = $date = (int) (
-                    \substr($buffer, $commaPos + 1, 4)
-                    . \substr($buffer, $commaPos + 6, 2)
-                    . \substr($buffer, $commaPos + 9, 2)
+                    \substr($rawDate, 0, 4)
+                    . \substr($rawDate, 5, 2)
+                    . \substr($rawDate, 8, 2)
                 );
                 $formattedDatesByInt[$date] = $rawDate;
             }
