@@ -93,21 +93,22 @@ final class Parser
         }
 
         foreach ($result as &$dates) {
-            if (\count($dates) > 1) {
-                \ksort($dates, \SORT_NUMERIC);
-
-                $formattedDates = [];
-
-                foreach ($dates as $date => $count) {
-                    $formattedDates[$formattedDatesByInt[$date]] = $count;
-                }
-
-                $dates = $formattedDates;
-            } else {
+            if (\count($dates) === 1) {
                 foreach ($dates as $date => $count) {
                     $dates = [$formattedDatesByInt[$date] => $count];
+                    continue 2;
                 }
             }
+
+            \ksort($dates, \SORT_NUMERIC);
+
+            $formattedDates = [];
+
+            foreach ($dates as $date => $count) {
+                $formattedDates[$formattedDatesByInt[$date]] = $count;
+            }
+
+            $dates = $formattedDates;
         }
 
         \file_put_contents($outputPath, \json_encode($result, \JSON_PRETTY_PRINT));
