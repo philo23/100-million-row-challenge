@@ -111,10 +111,20 @@ final class Parser
         foreach ($result as $pathId => $dates) {
             $path = $pathByIds[$pathId];
 
+            if ($isFirstPath) {
+                $isFirstPath = false;
+            } else {
+                $outBuffer .= ",\n";
+            }
+
             if (\count($dates) === 1) {
+                $outBuffer .= '    "\/blog\/' . $path . "\": {\n";
+
                 foreach ($dates as $date => $count) {
-                    $formattedDates = [$formattedDatesByInt[$date] => $count];
+                    $outBuffer .= '        "' . $formattedDatesByInt[$date] . '": ' . $count;
                 }
+
+                $outBuffer .= "\n    }";
             } else {
                 \ksort($dates, \SORT_NUMERIC);
 
@@ -123,29 +133,23 @@ final class Parser
                 foreach ($dates as $date => $count) {
                     $formattedDates[$formattedDatesByInt[$date]] = $count;
                 }
-            }
 
-            if ($isFirstPath) {
-                $isFirstPath = false;
-            } else {
-                $outBuffer .= ",\n";
-            }
+                $outBuffer .= '    "\/blog\/' . $path . "\": {\n";
 
-            $outBuffer .= '    "\/blog\/' . $path . "\": {\n";
+                $isFirstDate = true;
 
-            $isFirstDate = true;
+                foreach ($formattedDates as $date => $count) {
+                    if ($isFirstDate) {
+                        $isFirstDate = false;
+                    } else {
+                        $outBuffer .= ",\n";
+                    }
 
-            foreach ($formattedDates as $date => $count) {
-                if ($isFirstDate) {
-                    $isFirstDate = false;
-                } else {
-                    $outBuffer .= ",\n";
+                    $outBuffer .= '        "' . $date . '": ' . $count;
                 }
 
-                $outBuffer .= '        "' . $date . '": ' . $count;
+                $outBuffer .= "\n    }";
             }
-
-            $outBuffer .= "\n    }";
 
             if (\strlen($outBuffer) >= $outBufferFlushSize) {
                 \fwrite($out, $outBuffer);
