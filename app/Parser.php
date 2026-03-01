@@ -10,7 +10,7 @@ final class Parser
         \stream_set_read_buffer($fh, 0);
 
         $result = [];
-        $prefixLength = 19; // strlen('https://stitcher.io')
+        $prefixLength = 25; // strlen('https://stitcher.io/blog/')
         $timestampLength = 25; // strlen('2026-02-25T12:00:00+00:00')
         $commaOffsetFromNewline = $timestampLength + 1;
         $chunkSize = 1024 * 1024;
@@ -92,25 +92,59 @@ final class Parser
             }
         }
 
-        foreach ($result as &$dates) {
+        $out = \fopen($outputPath, 'wb');
+
+        $outBuffer = "{\n";
+        $outBufferFlushSize = 1024 * 1024;
+        $isFirstPath = true;
+
+        foreach ($result as $path => &$dates) {
             if (\count($dates) === 1) {
                 foreach ($dates as $date => $count) {
                     $dates = [$formattedDatesByInt[$date] => $count];
-                    continue 2;
                 }
+            } else {
+                \ksort($dates, \SORT_NUMERIC);
+
+                $formattedDates = [];
+
+                foreach ($dates as $date => $count) {
+                    $formattedDates[$formattedDatesByInt[$date]] = $count;
+                }
+
+                $dates = $formattedDates;
             }
 
-            \ksort($dates, \SORT_NUMERIC);
+            if ($isFirstPath) {
+                $isFirstPath = false;
+            } else {
+                $outBuffer .= ",\n";
+            }
 
-            $formattedDates = [];
+            $outBuffer .= '    "\/blog\/' . $path . "\": {\n";
+
+            $isFirstDate = true;
 
             foreach ($dates as $date => $count) {
-                $formattedDates[$formattedDatesByInt[$date]] = $count;
+                if ($isFirstDate) {
+                    $isFirstDate = false;
+                } else {
+                    $outBuffer .= ",\n";
+                }
+
+                $outBuffer .= '        "' . $date . '": ' . $count;
             }
 
-            $dates = $formattedDates;
+            $outBuffer .= "\n    }";
+
+            if (\strlen($outBuffer) >= $outBufferFlushSize) {
+                \fwrite($out, $outBuffer);
+                $outBuffer = '';
+            }
         }
 
-        \file_put_contents($outputPath, \json_encode($result, \JSON_PRETTY_PRINT));
+        $outBuffer .= "\n}";
+
+        \fwrite($out, $outBuffer);
     }
 }
