@@ -98,10 +98,10 @@ final class Parser
         $outBufferFlushSize = 1024 * 1024;
         $isFirstPath = true;
 
-        foreach ($result as $path => &$dates) {
+        foreach ($result as $path => $dates) {
             if (\count($dates) === 1) {
                 foreach ($dates as $date => $count) {
-                    $dates = [$formattedDatesByInt[$date] => $count];
+                    $formattedDates = [$formattedDatesByInt[$date] => $count];
                 }
             } else {
                 \ksort($dates, \SORT_NUMERIC);
@@ -111,8 +111,6 @@ final class Parser
                 foreach ($dates as $date => $count) {
                     $formattedDates[$formattedDatesByInt[$date]] = $count;
                 }
-
-                $dates = $formattedDates;
             }
 
             if ($isFirstPath) {
@@ -125,7 +123,7 @@ final class Parser
 
             $isFirstDate = true;
 
-            foreach ($dates as $date => $count) {
+            foreach ($formattedDates as $date => $count) {
                 if ($isFirstDate) {
                     $isFirstDate = false;
                 } else {
